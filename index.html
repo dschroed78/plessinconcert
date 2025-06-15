@@ -1,0 +1,102 @@
+
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎵 What's On – Plëss in Concert</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      padding: 2rem;
+    }
+    h1 {
+      text-align: center;
+    }
+    .event {
+      background: white;
+      border-left: 5px solid #4a90e2;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .event-date {
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+    .event-time {
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    .event-band {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎶 What's On – Plëss in Concert</h1>
+  <div id="events">Loading events...</div>
+
+  <script>
+    async function loadCSV() {
+      try {
+        const response = await fetch('ArtManLineUpHtml_Q.csv');
+        if (!response.ok) throw new Error('CSV fetch failed: ' + response.status);
+        const text = await response.text();
+        const rows = text.trim().split('\n').map(r => r.split(';'));
+
+        const [headers, ...data] = rows;
+        const events = data.map(row => Object.fromEntries(headers.map((h, i) => [h, row[i]])));
+
+        const now = new Date();
+        const futureEvents = events.filter(event => {
+          const parts = event.ArtManDate?.split('.');
+          if (!parts || parts.length < 3 || !event.ArtManDate.includes(' ')) return false;
+          const [day, month, yearTime] = parts;
+          const [year, time] = yearTime.split(' ');
+          const isoString = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${time}`;
+          const eventDate = new Date(isoString);
+          return eventDate > now;
+        });
+
+        futureEvents.sort((a, b) => {
+          const aDate = new Date(a.ArtManDate.split('.').reverse().join('-'));
+          const bDate = new Date(b.ArtManDate.split('.').reverse().join('-'));
+          return bDate - aDate;
+        });
+
+        const container = document.getElementById('events');
+        container.innerHTML = '';
+
+        futureEvents.forEach(event => {
+          const start = event.ArtManDate && event.ArtManDate.includes(' ') ? event.ArtManDate.split(' ')[1].split(':') : null;
+          const end = event.ArtManDateEnd && event.ArtManDateEnd.includes(' ') ? event.ArtManDateEnd.split(' ')[1].split(':') : null;
+
+          const startTime = start ? `${start[0]}h${start[1]}` : '';
+          const endTime = end ? `${end[0]}h${end[1]}` : '';
+          const timeRange = startTime && endTime ? `${startTime} - ${endTime}` : '';
+
+          const div = document.createElement('div');
+          div.className = 'event';
+          div.innerHTML = `
+            <div class="event-date">${event.ArtManDate.split(' ')[0]}</div>
+            <div class="event-time">${timeRange}</div>
+            <div class="event-band"><strong>${event.ArtNomGroupe}</strong></div>
+          `;
+          container.appendChild(div);
+        });
+      } catch (err) {
+        console.error('Error loading events:', err);
+        const fallback = document.getElementById('events');
+        if (fallback) fallback.textContent = 'Fehler beim Laden der Events.';
+      }
+    }
+
+    // Wait until page is fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCSV();
+    });
+  </script>
+</body>
+</html>
