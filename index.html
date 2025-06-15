@@ -67,7 +67,7 @@
             if (!d || d.length !== 3 || !t) return new Date(0);
             return new Date(`${d[2]}-${d[1]}-${d[0]}T${t}`);
           };
-          return parseDate(b) - parseDate(a);
+          return parseDate(a) - parseDate(b);
         });
 
         const container = document.getElementById('events');
