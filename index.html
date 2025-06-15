@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Access-Datenanzeige</title>
+  <style>
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #aaa; padding: 8px; }
+    th { background-color: #eee; }
+  </style>
+</head>
+<body>
+  <h1>Access-Daten</h1>
+  <table id="data-table"></table>
+
+  <script>
+    async function loadCSV() {
+      const response = await fetch('daten.csv');
+      const text = await response.text();
+      const rows = text.trim().split('\n').map(row => row.split(','));
+      
+      const table = document.getElementById('data-table');
+      table.innerHTML = '';
+
+      // Tabellenkopf
+      const thead = table.insertRow();
+      rows[0].forEach(cell => {
+        const th = document.createElement('th');
+        th.textContent = cell;
+        thead.appendChild(th);
+      });
+
+      // Tabelleninhalt
+      for (let i = 1; i < rows.length; i++) {
+        const row = table.insertRow();
+        rows[i].forEach(cell => {
+          const td = row.insertCell();
+          td.textContent = cell;
+        });
+      }
+    }
+
+    loadCSV();
+  </script>
+</body>
+</html>
