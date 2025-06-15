@@ -1,43 +1,44 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Access-Datenanzeige</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>What's On – Konzertagenda</title>
   <style>
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #aaa; padding: 8px; }
-    th { background-color: #eee; }
+    body { font-family: Arial, sans-serif; background: #f9f9f9; padding: 2rem; }
+    h1 { text-align: center; }
+    .event { background: white; border-left: 5px solid #4a90e2; padding: 1rem; margin-bottom: 1rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .event-date { font-weight: bold; margin-bottom: 0.5rem; }
+    .event-location { font-style: italic; }
   </style>
 </head>
 <body>
-  <h1>Access-Daten</h1>
-  <table id="data-table"></table>
+  <h1>🎶 What's On – Konzertagenda</h1>
+  <div id="events"></div>
 
   <script>
     async function loadCSV() {
-      const response = await fetch('daten.csv');
+      const response = await fetch('events.csv');
       const text = await response.text();
-      const rows = text.trim().split('\n').map(row => row.split(','));
-      
-      const table = document.getElementById('data-table');
-      table.innerHTML = '';
+      const rows = text.trim().split('\n').map(r => r.split(','));
 
-      // Tabellenkopf
-      const thead = table.insertRow();
-      rows[0].forEach(cell => {
-        const th = document.createElement('th');
-        th.textContent = cell;
-        thead.appendChild(th);
+      const [headers, ...data] = rows;
+      const container = document.getElementById('events');
+      container.innerHTML = '';
+
+      data.forEach(row => {
+        const event = Object.fromEntries(headers.map((h, i) => [h, row[i]]));
+
+        const div = document.createElement('div');
+        div.className = 'event';
+        div.innerHTML = `
+          <div class="event-date">${event.Datum}</div>
+          <div class="event-band"><strong>${event.Band}</strong></div>
+          <div class="event-location">${event.Ort}</div>
+          <div class="event-genre">${event.Genre}</div>
+        `;
+        container.appendChild(div);
       });
-
-      // Tabelleninhalt
-      for (let i = 1; i < rows.length; i++) {
-        const row = table.insertRow();
-        rows[i].forEach(cell => {
-          const td = row.insertCell();
-          td.textContent = cell;
-        });
-      }
     }
 
     loadCSV();
