@@ -6,6 +6,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🎵 What's On – Plëss in Concert</title>
   <style>
+
+    <script>
+  function autoScroll(speed = 1, pauseDuration = 5000) {
+    let scrollPos = 0;
+    const delay = 20;
+
+    function scrollDown() {
+      scrollPos += speed;
+      window.scrollTo({ top: scrollPos, behavior: 'auto' });
+
+      if ((window.innerHeight + window.scrollY) >= document.body.scrollHeight) {
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          scrollPos = 0;
+          setTimeout(scrollDown, pauseDuration); // wait at top too
+        }, pauseDuration); // wait at bottom
+      } else {
+        setTimeout(scrollDown, delay);
+      }
+    }
+
+    // Initial pause at top before first scroll
+    setTimeout(scrollDown, pauseDuration);
+  }
+
+  window.addEventListener('load', () => autoScroll(1, 5000));
+</script>
+    
     body {
       font-family: Arial, sans-serif;
       background: #f9f9f9;
