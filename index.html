@@ -74,7 +74,11 @@
         container.innerHTML = '';
 
         futureEvents.forEach(event => {
-          const date = event.ArtManDateStartDate;
+          const [day, month, year] = event.ArtManDateStartDate.split('/');
+          const jsDate = new Date(`${year}-${month}-${day}`);
+          const weekday = jsDate.toLocaleDateString('en-GB', { weekday: 'long' });
+          const date = `${weekday}, ${event.ArtManDateStartDate}`;
+
           const start = event.ArtManDateStartHour?.replace(':', 'h') || '';
           const end = event.ArtManDateEndHour?.replace(':', 'h') || '';
           const timeRange = start && end ? `${start} - ${end}` : '';
